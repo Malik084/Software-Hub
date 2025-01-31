@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soft HUB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(145deg, #111, #333);
+            color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Parallax Background */
+        .parallax {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: url('https://www.transparenttextures.com/patterns/dark-geometric.png') center/cover;
+            animation: moveBackground 20s linear infinite;
+        }
+
+        @keyframes moveBackground {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Loading Animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeOut 1s ease 2s forwards;
+        }
+
+        .loader::after {
+            content: '';
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ff5f5f;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Top Header with Buttons and Search Bar */
+        .top-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(17, 17, 17, 0.9);
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .top-header .buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .top-header .buttons a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .top-header .buttons a:hover {
+            background: rgba(255, 95, 95, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .search-bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar input {
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            outline: none;
+            width: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .search-bar button {
+            padding: 8px 12px;
+            background: linear-gradient(145deg, #ff5f5f, #ff0000);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .search-bar button:hover {
+            background: linear-gradient(145deg, #ff0000, #ff5f5f);
+            transform: translateY(-2px);
+        }
+
+        .bell-icon {
+            cursor: pointer;
+            font-size: 24px;
+            color: #ff5f5f;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .bell-icon:hover {
+            color: #ff0000;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: red;
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 50%;
+            display: none;
+        }
+
+        /* Notifications Box */
+        .notifications-box {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(17, 17, 17, 0.9);
+            border-radius: 10px;
+            padding: 15px;
+            width: 300px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .notifications-box h3 {
+            color: #ff5f5f;
+            margin-bottom: 10px;
+        }
+
+        .notifications-box ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .notifications-box ul li {
+            color: #bbb;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .notifications-box ul li:last-child {
+            border-bottom: none;
+        }
+
+        /* Header Section */
+        .header {
+            font-size: 40px;
+            font-weight: 700;
+            text-align: center;
+            color: #ff5f5f;
+            margin-bottom: 20px;
+            animation: fadeInDown 1s ease;
+            margin-top: 120px; /* Adjusted for top header */
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Software Container */
+        .software-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+            animation: fadeIn 1.5s ease;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Software Box */
+        .software-box {
+            width: 250px; /* Fixed width */
+            height: 350px; /* Fixed height */
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .software-box:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 35px rgba(255, 95, 95, 0.4);
+            border: 1px solid rgba(255, 95, 95, 0.6);
+        }
+
+        /* Software Logo */
+        .software-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .software-box:hover .software-logo {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        /* Software Name */
+        .software-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 10px;
+            text-align: center;
+            transition: color 0.3s ease;
+        }
+
+        .software-box:hover .software-name {
+            color: #ff5f5f;
+        }
+
+        /* Software Info */
+        .software-info {
+            font-size: 14px;
+            color: #bbb;
+            margin-bottom: 15px;
+            text-align: center;
+            transition: color 0.3s ease;
+            display: -webkit-box;
+            -webkit-line-clamp: 3; /* Limit to 3 lines */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .software-box:hover .software-info {
+            color: #fff;
+        }
+
+        /* Software Buttons */
+        .software-buttons {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .software-button {
+            padding: 12px;
+            background: linear-gradient(145deg, #ff5f5f, #ff0000);
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .software-button:hover {
+            background: linear-gradient(145deg, #ff0000, #ff5f5f);
+            transform: translateY(-3px);
+        }
+
+        .download-button {
+            padding: 12px;
+            background: linear-gradient(145deg, #00cc66, #00994d);
+            color: white;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .download-button:hover {
+            background: linear-gradient(145deg, #00994d, #00cc66);
+            transform: translateY(-3px);
+        }
+
+        /* Footer */
+        .footer {
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 30px;
+            animation: fadeInUp 1s ease;
+        }
+
+        .footer a {
+            color: #ff5f5f;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer a:hover {
+            color: #ff0000;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #222, #111);
+            padding: 20px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .modal-header {
+            font-size: 24px;
+            font-weight: bold;
+            color: #ff5f5f;
+            margin-bottom: 15px;
+        }
+
+        .modal-body {
+            font-size: 16px;
+            color: #bbb;
+            line-height: 1.6;
+        }
+
+        .modal-body ul {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #ff5f5f;
+            cursor: pointer;
+        }
+
+        .close-modal:hover {
+            color: #ff0000;
+        }
+
+        /* About Page Styles */
+        .about-page, .contact-page {
+            display: none;
+            margin-top: 100px;
+            padding: 20px;
+            background: rgba(17, 17, 17, 0.9);
+            border-radius: 15px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .about-page h2, .contact-page h2 {
+            color: #ff5f5f;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .about-page p, .contact-page p {
+            color: #bbb;
+            line-height: 1.6;
+        }
+
+        .contact-page form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .contact-page input, .contact-page textarea {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .contact-page button {
+            padding: 12px;
+            background: linear-gradient(145deg, #ff5f5f, #ff0000);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .contact-page button:hover {
+            background: linear-gradient(145deg, #ff0000, #ff5f5f);
+            transform: translateY(-3px);
+        }
+
+        /* Comments Section */
+        .comments-section {
+            margin-top: 20px;
+        }
+
+        .comments-section h3 {
+            color: #ff5f5f;
+            margin-bottom: 10px;
+        }
+
+        .comments-section ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .comments-section ul li {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .comments-section ul li .comment-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .comments-section ul li .comment-actions button {
+            padding: 5px 10px;
+            background: linear-gradient(145deg, #ff5f5f, #ff0000);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .comments-section ul li .comment-actions button:hover {
+            background: linear-gradient(145deg, #ff0000, #ff5f5f);
+            transform: translateY(-2px);
+        }
+
+        /* Control Panel Styles */
+        .control-panel {
+            display: none;
+            margin-top: 100px;
+            padding: 20px;
+            background: rgba(17, 17, 17, 0.9);
+            border-radius: 15px;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        .control-panel h2 {
+            color: #ff5f5f;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .control-panel form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-panel input, .control-panel textarea {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .control-panel button {
+            padding: 12px;
+            background: linear-gradient(145deg, #ff5f5f, #ff0000);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .control-panel button:hover {
+            background: linear-gradient(145deg, #ff0000, #ff5f5f);
+            transform: translateY(-3px);
+        }
+
+        /* Password Protection */
+        .password-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .password-box input {
+            padding: 8px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .password-box button {
+            padding: 8px 12px;
+            background: linear-gradient(145deg, #ff5f5f, #ff0000);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .password-box button:hover {
+            background: linear-gradient(145deg, #ff0000, #ff5f5f);
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                font-size: 30px;
+            }
+
+            .top-header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px;
+            }
+
+            .top-header .search-bar input {
+                width: 100%;
+            }
+
+            .software-box {
+                width: 100%;
+                max-width: 300px;
+            }
+
+            .about-page, .contact-page, .control-panel {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Parallax Background -->
+<div class="parallax"></div>
+
+<!-- Loading Animation -->
+<div class="loader"></div>
+
+<!-- Top Header with Buttons and Search Bar -->
+<div class="top-header">
+    <div class="buttons">
+        <a href="#" onclick="showHome()">Home</a>
+        <a href="#" onclick="showAbout()">About</a>
+        <a href="#" onclick="showContact()">Contact Us</a>
+        <a href="#" onclick="showControlPanel()">Control Panel</a>
+        <a href="https://www.youtube.com/@malikxcheats" target="_blank">YouTube</a>
+        <a href="https://discord.gg/KWvCN62zu2" target="_blank">Discord</a>
+    </div>
+    <div class="search-bar-container">
+        <div class="search-bar">
+            <input type="text" placeholder="Search software..." id="searchInput">
+            <button onclick="searchSoftware()">Search</button>
+        </div>
+        <div class="bell-icon" onclick="toggleNotifications()">
+            <span>🔔</span>
+            <span class="notification-badge" id="notificationBadge"></span>
+        </div>
+    </div>
+</div>
+
+<!-- Notifications Box -->
+<div class="notifications-box" id="notificationsBox">
+    <h3>Notifications</h3>
+    <ul id="notificationsList"></ul>
+</div>
+
+<!-- Header Section -->
+<div class="header">
+    Soft HUB
+</div>
+
+<!-- Home Page (Software Section) -->
+<div id="home-page" class="software-container">
+    <!-- Software will be dynamically added here -->
+</div>
+
+<!-- About Page -->
+<div id="about-page" class="about-page">
+    <h2>About Soft HUB</h2>
+    <p>
+        Soft HUB is your one-stop destination for all types of software. Whether you're looking for multimedia players, 
+        file compressors, or productivity tools, we've got you covered. Our platform provides detailed information, 
+        features, and direct download links for a wide range of software.
+    </p>
+    <p>
+        <strong>Key Features:</strong>
+        <ul>
+            <li>Comprehensive software details and features.</li>
+            <li>Easy-to-use search functionality.</li>
+            <li>Direct download links for quick access.</li>
+            <li>User reviews and feedback system.</li>
+        </ul>
+    </p>
+</div>
+
+<!-- Contact Us Page -->
+<div id="contact-page" class="contact-page">
+    <h2>Contact Us</h2>
+    <p>Have any questions or feedback? Feel free to reach out to us!</p>
+    <form id="contact-form">
+        <input type="text" id="name" placeholder="Your Name" required>
+        <input type="email" id="email" placeholder="Your Email" required>
+        <textarea id="message" rows="5" placeholder="Your Message" required></textarea>
+        <button type="submit">Send Message</button>
+    </form>
+    <div class="comments-section">
+        <h3>Comments</h3>
+        <ul id="commentsList"></ul>
+    </div>
+</div>
+
+<!-- Control Panel -->
+<div id="control-panel" class="control-panel">
+    <h2>Control Panel</h2>
+    <div class="password-box">
+        <input type="password" id="passwordInput" placeholder="Enter Password">
+        <button onclick="loginToControlPanel()">Login</button>
+    </div>
+    <div id="control-panel-content" style="display: none;">
+        <form id="add-software-form">
+            <input type="text" id="software-name" placeholder="Software Name" required>
+            <input type="text" id="software-logo" placeholder="Software Logo URL" required>
+            <textarea id="software-info" rows="5" placeholder="Software Info" required></textarea>
+            <textarea id="software-learn-more" rows="5" placeholder="Learn More (Features & Usage)" required></textarea>
+            <button type="submit">Add Software</button>
+        </form>
+        <div id="software-list">
+            <!-- List of software will be dynamically added here -->
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+    <p>&copy; 2025 <a href="#">Soft HUB</a>. All Rights Reserved.</p>
+</div>
+
+<!-- Modal for Software Details -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div class="modal-header" id="modal-header"></div>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+
+<script>
+    // Function to handle search
+    function searchSoftware() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const softwareBoxes = document.querySelectorAll('.software-box');
+
+        softwareBoxes.forEach(box => {
+            const softwareName = box.querySelector('.software-name').textContent.toLowerCase();
+            if (softwareName.includes(searchTerm)) {
+                box.style.display = 'flex';
+            } else {
+                box.style.display = 'none';
+            }
+        });
+    }
+
+    // Function to open modal
+    function openModal(software) {
+        const modal = document.getElementById('modal');
+        const modalHeader = document.getElementById('modal-header');
+        const modalBody = document.getElementById('modal-body');
+
+        if (software === 'vlc') {
+            modalHeader.textContent = 'VLC Media Player';
+            modalBody.innerHTML = `
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Plays most multimedia files (MP4, AVI, MKV, etc.).</li>
+                    <li>Supports streaming and media conversion.</li>
+                    <li>Lightweight and open-source.</li>
+                    <li>Available on multiple platforms (Windows, macOS, Linux).</li>
+                    <li>Customizable skins and extensions.</li>
+                </ul>
+                <p><strong>Uses:</strong></p>
+                <ul>
+                    <li>Watching videos and listening to music.</li>
+                    <li>Streaming online content.</li>
+                    <li>Converting media files to different formats.</li>
+                    <li>Playing DVDs and Blu-ray discs.</li>
+                    <li>Recording and capturing screen.</li>
+                </ul>
+            `;
+        } else if (software === 'winrar') {
+            modalHeader.textContent = 'WinRAR';
+            modalBody.innerHTML = `
+                <p><strong>Features:</strong></p>
+                <ul>
+                    <li>Compresses files into RAR and ZIP formats.</li>
+                    <li>Supports password protection and encryption.</li>
+                    <li>Can split large files into smaller parts.</li>
+                    <li>Supports multi-core compression for faster processing.</li>
+                    <li>Integration with Windows Explorer.</li>
+                </ul>
+                <p><strong>Uses:</strong></p>
+                <ul>
+                    <li>Reducing file size for storage or sharing.</li>
+                    <li>Protecting files with passwords.</li>
+                    <li>Organizing multiple files into a single archive.</li>
+                    <li>Extracting files from various archive formats.</li>
+                    <li>Creating self-extracting archives.</li>
+                </ul>
+            `;
+        }
+
+        modal.style.display = 'flex';
+    }
+
+    // Function to close modal
+    function closeModal() {
+        const modal = document.getElementById('modal');
+        modal.style.display = 'none';
+    }
+
+    // Close modal if clicked outside
+    window.onclick = function (event) {
+        const modal = document.getElementById('modal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+
+    // Function to show Home page
+    function showHome() {
+        document.getElementById('home-page').style.display = 'flex';
+        document.getElementById('about-page').style.display = 'none';
+        document.getElementById('contact-page').style.display = 'none';
+        document.getElementById('control-panel').style.display = 'none';
+    }
+
+    // Function to show About page
+    function showAbout() {
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('about-page').style.display = 'block';
+        document.getElementById('contact-page').style.display = 'none';
+        document.getElementById('control-panel').style.display = 'none';
+    }
+
+    // Function to show Contact page
+    function showContact() {
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('about-page').style.display = 'none';
+        document.getElementById('contact-page').style.display = 'block';
+        document.getElementById('control-panel').style.display = 'none';
+    }
+
+    // Function to show Control Panel
+    function showControlPanel() {
+        document.getElementById('home-page').style.display = 'none';
+        document.getElementById('about-page').style.display = 'none';
+        document.getElementById('contact-page').style.display = 'none';
+        document.getElementById('control-panel').style.display = 'block';
+    }
+
+    // Handle Contact Form Submission
+    document.getElementById('contact-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('message').value;
+
+        // Save message locally (for demo purposes)
+        const messages = JSON.parse(localStorage.getItem('messages')) || [];
+        messages.push({ name, email, message });
+        localStorage.setItem('messages', JSON.stringify(messages));
+
+        alert('Message sent successfully!');
+        document.getElementById('contact-form').reset();
+        updateComments();
+    });
+
+    // Handle Add Software Form Submission
+    document.getElementById('add-software-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const name = document.getElementById('software-name').value;
+        const logo = document.getElementById('software-logo').value;
+        const info = document.getElementById('software-info').value;
+        const learnMore = document.getElementById('software-learn-more').value;
+
+        // Save software locally (for demo purposes)
+        const softwareList = JSON.parse(localStorage.getItem('softwareList')) || [];
+        softwareList.push({ name, logo, info, learnMore });
+        localStorage.setItem('softwareList', JSON.stringify(softwareList));
+
+        // Show notification badge
+        const notificationBadge = document.getElementById('notificationBadge');
+        notificationBadge.style.display = 'inline-block';
+        notificationBadge.textContent = softwareList.length;
+
+        // Add notification
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        notifications.push(`New software added: ${name}`);
+        localStorage.setItem('notifications', JSON.stringify(notifications));
+
+        alert('Software added successfully!');
+        document.getElementById('add-software-form').reset();
+        updateSoftwareList();
+        updateNotifications();
+    });
+
+    // Function to update software list in Control Panel
+    function updateSoftwareList() {
+        const softwareList = JSON.parse(localStorage.getItem('softwareList')) || [];
+        const softwareListContainer = document.getElementById('software-list');
+        softwareListContainer.innerHTML = '';
+
+        softwareList.forEach((software, index) => {
+            const softwareItem = document.createElement('div');
+            softwareItem.className = 'software-box';
+            softwareItem.innerHTML = `
+                <img src="${software.logo}" alt="${software.name} Logo" class="software-logo">
+                <div class="software-name">${software.name}</div>
+                <div class="software-info">${software.info}</div>
+                <div class="software-buttons">
+                    <button class="software-button" onclick="editSoftware(${index})">Edit</button>
+                    <button class="download-button" onclick="deleteSoftware(${index})">Delete</button>
+                </div>
+            `;
+            softwareListContainer.appendChild(softwareItem);
+        });
+
+        // Update home page software list
+        const homePageContainer = document.getElementById('home-page');
+        homePageContainer.innerHTML = '';
+
+        softwareList.forEach((software, index) => {
+            const softwareItem = document.createElement('div');
+            softwareItem.className = 'software-box';
+            softwareItem.innerHTML = `
+                <img src="${software.logo}" alt="${software.name} Logo" class="software-logo">
+                <div class="software-name">${software.name}</div>
+                <div class="software-info">${software.info}</div>
+                <div class="software-buttons">
+                    <button class="software-button" onclick="openModal('${software.name.toLowerCase()}')">Learn More</button>
+                    <button class="download-button" onclick="window.location.href='${software.name.toLowerCase()}_download.html'">Download</button>
+                </div>
+            `;
+            homePageContainer.appendChild(softwareItem);
+        });
+    }
+
+    // Function to edit software
+    function editSoftware(index) {
+        const softwareList = JSON.parse(localStorage.getItem('softwareList')) || [];
+        const software = softwareList[index];
+
+        document.getElementById('software-name').value = software.name;
+        document.getElementById('software-logo').value = software.logo;
+        document.getElementById('software-info').value = software.info;
+        document.getElementById('software-learn-more').value = software.learnMore;
+
+        // Remove the software from the list
+        softwareList.splice(index, 1);
+        localStorage.setItem('softwareList', JSON.stringify(softwareList));
+        updateSoftwareList();
+    }
+
+    // Function to delete software
+    function deleteSoftware(index) {
+        const softwareList = JSON.parse(localStorage.getItem('softwareList')) || [];
+        softwareList.splice(index, 1);
+        localStorage.setItem('softwareList', JSON.stringify(softwareList));
+        updateSoftwareList();
+    }
+
+    // Function to toggle notifications box
+    function toggleNotifications() {
+        const notificationsBox = document.getElementById('notificationsBox');
+        notificationsBox.style.display = notificationsBox.style.display === 'block' ? 'none' : 'block';
+
+        // Mark notifications as read
+        const notificationBadge = document.getElementById('notificationBadge');
+        notificationBadge.style.display = 'none';
+        localStorage.setItem('notifications', JSON.stringify([]));
+        updateNotifications();
+    }
+
+    // Function to update notifications
+    function updateNotifications() {
+        const notifications = JSON.parse(localStorage.getItem('notifications')) || [];
+        const notificationsList = document.getElementById('notificationsList');
+        notificationsList.innerHTML = '';
+
+        notifications.forEach(notification => {
+            const notificationItem = document.createElement('li');
+            notificationItem.textContent = notification;
+            notificationsList.appendChild(notificationItem);
+        });
+    }
+
+    // Function to update comments
+    function updateComments() {
+        const messages = JSON.parse(localStorage.getItem('messages')) || [];
+        const commentsList = document.getElementById('commentsList');
+        commentsList.innerHTML = '';
+
+        messages.forEach((message, index) => {
+            const commentItem = document.createElement('li');
+            commentItem.innerHTML = `
+                <strong>${message.name}</strong>: ${message.message}
+                <div class="comment-actions">
+                    <button onclick="likeComment(${index})">Like</button>
+                    <button onclick="deleteComment(${index})">Delete</button>
+                </div>
+            `;
+            commentsList.appendChild(commentItem);
+        });
+    }
+
+    // Function to like a comment
+    function likeComment(index) {
+        const messages = JSON.parse(localStorage.getItem('messages')) || [];
+        messages[index].likes = (messages[index].likes || 0) + 1;
+        localStorage.setItem('messages', JSON.stringify(messages));
+        updateComments();
+    }
+
+    // Function to delete a comment
+    function deleteComment(index) {
+        const messages = JSON.parse(localStorage.getItem('messages')) || [];
+        messages.splice(index, 1);
+        localStorage.setItem('messages', JSON.stringify(messages));
+        updateComments();
+    }
+
+    // Function to login to control panel
+    function loginToControlPanel() {
+        const password = document.getElementById('passwordInput').value;
+        if (password === 'admin123') { // Change this password as needed
+            document.getElementById('control-panel-content').style.display = 'block';
+        } else {
+            alert('Incorrect password!');
+        }
+    }
+
+    // Logout user if they leave the control panel for 1 second
+    let controlPanelTimeout;
+    document.getElementById('control-panel').addEventListener('mouseleave', () => {
+        controlPanelTimeout = setTimeout(() => {
+            document.getElementById('control-panel-content').style.display = 'none';
+            document.getElementById('passwordInput').value = '';
+        }, 1000); // 1 second
+    });
+
+    document.getElementById('control-panel').addEventListener('mouseenter', () => {
+        clearTimeout(controlPanelTimeout);
+    });
+
+    // Load software list, notifications, and comments on page load
+    updateSoftwareList();
+    updateNotifications();
+    updateComments();
+</script>
+
+</body>
+</html>
